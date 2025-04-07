@@ -1,139 +1,119 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
+// import 'home_screen.dart';
+// import 'profile_screen.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+// void main() {
+//   runApp(MyApp());
+// }
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(title: 'Latihan StatefulWidget', home: MainScreen());
+//   }
+// }
+
+// class MainScreen extends StatefulWidget {
+//   @override
+//   _MainScreenState createState() => _MainScreenState();
+// }
+
+// class _MainScreenState extends State<MainScreen> {
+//   int _currentIndex = 0;
+//   final List<Widget> _screens = [HomeScreen(), ProfileScreen()];
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: _screens[_currentIndex], // Menampilkan halaman sesuai indeks
+//       bottomNavigationBar: BottomNavigationBar(
+//         type: BottomNavigationBarType.fixed,
+//         items: const <BottomNavigationBarItem>[
+//           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+//           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+//         ],
+//         currentIndex: _currentIndex,
+//         selectedItemColor: Colors.blue,
+//         unselectedItemColor: Colors.grey,
+//         onTap: (index) {
+//           setState(() {
+//             _currentIndex = index; // Ubah indeks halaman
+//           });
+//         },
+//       ),
+//     );
+//   }
+// }
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Produk API Demo',
+      home: const ProductListScreen(),
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class ProductListScreen extends StatefulWidget {
+  const ProductListScreen({super.key});
+  @override
+  State<ProductListScreen> createState() => _ProductListScreenState();
+}
+
+class _ProductListScreenState extends State<ProductListScreen> {
+  List products = [];
+  bool isLoading = true;
+  final String apiUrl = 'http://127.0.0.1:8000/api/products';
+  Future<void> fetchProducts() async {
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        setState(() {
+          products = json.decode(response.body);
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Gagal memuat data');
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProducts();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Responsive Design')),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth > 800) {
-            return const DesktopLayout();
-          } else {
-            return const MobileLayout();
-          }
-        },
-      ),
-    );
-  }
-}
-
-// 📌 Desktop Layout: Sidebar + Image & Text side by side
-class DesktopLayout extends StatelessWidget {
-  const DesktopLayout({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 1,
-          child: Container(
-            color: Colors.blue[100],
-            child: const Center(
-              child: Text(
-                'Sidebar Menu\n(For Desktop Only)',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      appBar: AppBar(title: const Text('Daftar Produk')),
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final product = products[index];
+                  return ListTile(
+                    title: Text(product['name']),
+                    subtitle: Text('Harga: Rp${product['price']}'),
+                  );
+                },
               ),
-            ),
-          ),
-        ),
-
-        Expanded(
-          flex: 3,
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Welcome to Our Page',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'This is a sample responsive layout in Flutter. '
-                        'On a large screen, the text and image are side by side. '
-                        'On mobile, they stack vertically.',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(width: 20),
-
-                Expanded(
-                  child: Image.network(
-                    'assets/img/Cat.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// 📌 Mobile Layout: Stacked (Image Above Text)
-class MobileLayout extends StatelessWidget {
-  const MobileLayout({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image.network(
-              'assets/img/Cat.png',
-              fit: BoxFit.cover,
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              'Welcome to Our Page',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'This is a sample responsive layout in Flutter. '
-              'On mobile, the image is on top and text follows below.',
-              style: TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
