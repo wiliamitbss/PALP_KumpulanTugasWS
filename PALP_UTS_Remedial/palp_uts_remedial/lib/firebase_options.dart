@@ -3,11 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     return const FirebaseOptions(
-      apiKey: 'AIzaSyA8aSXgLkH_PVoF0-lzrzzxDlA8BIVlIuM', 
-      appId: '1:607824099473:android:40115bf7db3b57daea6730', 
-      messagingSenderId: '607824099473', 
-      projectId: 'palpnote', 
-      storageBucket: 'palpnote.firebasestorage.app', 
+      apiKey: "AIzaSyATlfleh5LG8GxSmDDU4BDj0mT_jPQx1jg",
+      authDomain: "uts-palp-2025-22100043.firebaseapp.com",
+      projectId: "uts-palp-2025-22100043",
+      storageBucket: "uts-palp-2025-22100043.firebasestorage.app",
+      messagingSenderId: "1067014827835",
+      appId: "1:1067014827835:web:25d196aa65d37d9cb9d11e",
+      measurementId: "G-2BN42EZHYB",
     );
   }
 }
